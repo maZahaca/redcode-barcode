@@ -8,14 +8,14 @@ use RedCode\Barcode\Formatter\IBarcodeFormatter;
  */ 
 abstract class BarcodeWrapper
 {
-    private static $instance;
+    private $barcode;
 
-    public function __construct($instance)
+    public function __construct($barcode)
     {
-        if(!($instance instanceof \TCPDF2DBarcode) || !($instance instanceof \TCPDFBarcode)) {
+        if(!($barcode instanceof \TCPDF2DBarcode) && !($barcode instanceof \TCPDFBarcode)) {
             throw new \LogicException('');
         }
-        self::$instance = $instance;
+        $this->barcode = $barcode;
     }
 
     /**
@@ -26,7 +26,7 @@ abstract class BarcodeWrapper
      */
     protected function setBarcode($code, $type)
     {
-        self::$instance->setBarcode($code, $type);
+        $this->barcode->setBarcode($code, $type);
     }
 
     /**
@@ -38,11 +38,11 @@ abstract class BarcodeWrapper
     public function getBarcodeData($code, $type, IBarcodeFormatter $formatter)
     {
         $this->setBarcode($code, $type);
-        $data = self::$instance->getBarcodeArray();
+        $data = $this->barcode->getBarcodeArray();
         if($data === false) {
             return false;
         }
-        return $formatter->format(self::$instance->getBarcodeArray());
+        return $formatter->format($this->barcode->getBarcodeArray());
     }
 }
  

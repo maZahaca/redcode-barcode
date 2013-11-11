@@ -23,7 +23,7 @@ class Png1DFormatter implements IBarcodeFormatter
      * @param $color
      * @return self
      */
-    public function setParams($width, $height, $color)
+    public function setParams($width = 2, $height = 2, $color = array(0,0,0))
     {
         $this->width    = $width;
         $this->height   = $height;
@@ -37,13 +37,15 @@ class Png1DFormatter implements IBarcodeFormatter
      */
     public function setPath($path)
     {
-        $this->path = $path;
+        if($path) {
+            $this->path = $path;
+        }
         return $this;
     }
 
     public function format($barcodeArray)
     {
-        if (!function_exists('imagecreate')) {
+        if (!function_exists('imagecreate') || $barcodeArray === false) {
             return false;
         }
 
@@ -69,7 +71,7 @@ class Png1DFormatter implements IBarcodeFormatter
             }
             $x += $bw;
         }
-        $filename = $this->path.'/'.md5(uniqid()).'png';
+        $filename = $this->path.'/'.md5(uniqid()).'.png';
         imagepng($png, $filename);
         imagedestroy($png);
         return $filename;
