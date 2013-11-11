@@ -1,0 +1,20 @@
+{
+    "name": "redcode/barcode",
+    "description": "Barcode wrapper for tcpdf for symfony2",
+    "keywords": ["barcode", "tcpdf", "Symfony"],
+    "homepage": "https://github.com/maZahaca/redcode-barcode",
+    "authors": [
+        {
+            "name": "Andrew Reddikh",
+            "email": "andrew@reddikh.com",
+            "homepage": "https://github.com/maZahaca"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.4",
+        "tecnick.com/tcpdf": "6.0.043"
+    },
+    "autoload": {
+        "psr-0": { "RedCode\\Barcode": "src/" }
+    }
+}
