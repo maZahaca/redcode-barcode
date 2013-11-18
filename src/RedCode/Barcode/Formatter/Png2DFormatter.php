@@ -23,7 +23,7 @@ class Png2DFormatter implements IBarcodeFormatter
      * @param $color
      * @return self
      */
-    public function setParams($width = 2, $height = 2, $color = array(0,0,0))
+    public function setRenderParams($width = 2, $height = 2, $color = array(0,0,0))
     {
         $this->width    = $width;
         $this->height   = $height;
@@ -57,7 +57,7 @@ class Png2DFormatter implements IBarcodeFormatter
         $imagick = false;
         $png = imagecreate($width, $height);
         $bgcol = imagecolorallocate($png, 255, 255, 255);
-        imagecolortransparent($png, $bgcol);
+        //imagecolortransparent($png, $bgcol);
         $fgcol = imagecolorallocate($png, $this->color[0], $this->color[1], $this->color[2]);
 
         // print barcode elements
@@ -75,8 +75,8 @@ class Png2DFormatter implements IBarcodeFormatter
             }
             $y += $this->height;
         }
-        $filename = $this->path.'/'.md5(uniqid()).'.png';
-        imagepng($png, $filename);
+        $filename = $this->path.'/'.md5(uniqid()).'.jpg';
+        imagejpeg($png, $filename);
         imagedestroy($png);
         return $filename;
     }

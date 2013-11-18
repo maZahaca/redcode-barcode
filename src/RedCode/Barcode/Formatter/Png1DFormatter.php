@@ -1,16 +1,20 @@
 <?php
 
 namespace RedCode\Barcode\Formatter;
+use RedCode\Barcode\Text\BarcodeText;
 
 /**
  * @author maZahaca
  */ 
-class Png1DFormatter implements IBarcodeFormatter
+class Png1DFormatter implements IBarcodeFormatter, IBarcodeStore
 {
-    private $width = 2;
-    private $height = 2;
-    private $color = array(0,0,0);
-    private $path;
+    protected $width = 2;
+    protected $height = 2;
+    protected $color = array(0,0,0);
+    protected $barcodeText = null;
+    protected $code = null;
+
+    protected $path;
 
     public function __construct()
     {
@@ -18,16 +22,28 @@ class Png1DFormatter implements IBarcodeFormatter
     }
 
     /**
-     * @param $width
-     * @param $height
-     * @param $color
+     * @param int $width
+     * @param int $height
+     * @param array $color
      * @return self
      */
-    public function setParams($width = 2, $height = 2, $color = array(0,0,0))
+    public function setRenderParams($width = 2, $height = 2, $color = array(0,0,0))
     {
-        $this->width    = $width;
-        $this->height   = $height;
-        $this->color    = $color;
+        $this->width        = $width;
+        $this->height       = $height;
+        if($color){
+            $this->color    = $color;
+        }
+        return $this;
+    }
+
+    /**
+     * @param BarcodeText $barcodeText
+     * @return self
+     */
+    public function setBarCodeText($barcodeText)
+    {
+        $this->barcodeText = $barcodeText;
         return $this;
     }
 
@@ -43,6 +59,16 @@ class Png1DFormatter implements IBarcodeFormatter
         return $this;
     }
 
+    /**
+     * @param null|string $code
+     * @return self
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+        return $this;
+    }
+
     public function format($barcodeArray)
     {
         if (!function_exists('imagecreate') || $barcodeArray === false) {
@@ -51,7 +77,8 @@ class Png1DFormatter implements IBarcodeFormatter
 
         // calculate image size
         $width = ($barcodeArray['maxw'] * $this->width);
-        $height = $this->height;
+        $codePartHeight = 12;
+        $height = $this->height + ($this->barcodeText instanceof BarcodeText ? $codePartHeight : 0);
 
         // GD library
         $png = imagecreate($width, $height);
@@ -71,7 +98,27 @@ class Png1DFormatter implements IBarcodeFormatter
             }
             $x += $bw;
         }
-        $filename = $this->path.'/'.md5(uniqid()).'.png';
+
+        if($this->barcodeText instanceof BarcodeText) {
+            $code = $this->code ? $this->code : $barcodeArray['code'];
+            if($this->barcodeText->getTextFormat() !== null) {
+                $regex = $this->barcodeText->getTextFormat();
+                $code = preg_replace($regex[0], $regex[1], $code);
+            }
+
+            imagettftext(
+                $png,
+                10,
+                0,
+                0,
+                $height,
+                imagecolorallocate($png, $this->barcodeText->getColor()[0], $this->barcodeText->getColor()[0], $this->barcodeText->getColor()[0]),
+                $this->barcodeText->getTtfFontFile(),
+                $code
+            );
+        }
+
+        $filename = $this->path.'/'.md5($code).'.png';
         imagepng($png, $filename);
         imagedestroy($png);
         return $filename;
